@@ -1,0 +1,72 @@
+/**
+ * @file Application.cpp
+ * @author Marco Silva (msilva2203)
+ */
+
+#include "Application.h"
+#include "Entities/CubeTest.h"
+#include "Sandbox/PlayerPawn.h"
+#include "Rendering/Renderer.h"
+#include "Globals.h"
+
+#include <iostream>
+
+#include "World/Chunk.h"
+
+Application::Application() {
+    
+}
+
+Application::~Application() {
+    delete AppWindow;
+    delete GameInstance;
+}
+
+void Application::Run() {
+    // Create window
+    Window::WindowProperties WindowProps;
+    WindowProps.Name = "Mallocraft";
+    WindowProps.Width = 720;
+    WindowProps.Height = 720;
+    AppWindow = new Window(WindowProps);
+    Globals::AppWindow = AppWindow;
+
+    // Init function modules
+    Renderer::Init();
+    Input::Init();
+
+    // Create the game instace
+    GameInstance = new Instance();
+    GameInstance->Setup();
+    Globals::CurrentInstance = GameInstance;
+
+    GameInstance->CreateEntity<CubeTest>()->SetPosition(glm::vec3(10.0f, 0.0f, 0.0f));
+    GameInstance->CreateEntity<CubeTest>()->SetPosition(glm::vec3(10.0f, -2.0f, 0.0f));
+    GameInstance->CreateEntity<PlayerPawn>();
+    GameInstance->CreateEntity<Chunk>();
+
+    f32 LastFrameTime = 0.0f;
+
+    // Application loop
+    while (IsRunning()) {
+        f32 CurrentFrameTime = glfwGetTime();
+        f32 DeltaTime = CurrentFrameTime - LastFrameTime;
+
+        AppWindow->Clear();
+
+        GameInstance->Update(DeltaTime);
+        GameInstance->Draw();
+        
+        AppWindow->SwapBuffers();
+        AppWindow->PollEvents();
+
+        std::cout << "FPS: " << (i32)(1.0f / DeltaTime) << std::endl;
+
+        LastFrameTime = CurrentFrameTime;
+    }
+    AppWindow->Close();
+}
+
+bool Application::IsRunning() const {
+    return !AppWindow->ShouldClose();
+}
