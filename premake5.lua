@@ -22,11 +22,13 @@ include "Source/ThirdParty/glfw"
 include "Source/ThirdParty/glad"
 
 project "Mallocraft"
-    --location "./"
+    location "Intermediate/ProjectFiles"
     kind "ConsoleApp"
     language "C++"
     cppdialect "C++17"
     staticruntime "on"
+
+    debugdir(os.realpath("."))
 
     targetdir ("Binaries/" .. outputdir)
     objdir ("Intermediate/" .. outputdir)

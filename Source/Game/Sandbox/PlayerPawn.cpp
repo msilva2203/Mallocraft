@@ -26,12 +26,14 @@ void PlayerPawn::Setup() {
     GetPlayerController()->SetViewCamera(MainCamera);
 
     Input::SetMode(Input::Mode::Game);
+
+    SetPosition(glm::vec3(0.0f, 258.0f, 0.0f));
 }
 
 void PlayerPawn::Update(f32 DeltaTime) {
     Super::Update(DeltaTime);
     
-    const f32 Speed = 5.0f;
+    const f32 Speed = 20.0f;
     const glm::vec3 UpDirection = MainCamera->GetCameraUpDirection();
     const glm::vec3 ForwardDirection = MainCamera->GetCameraForwardDirection();
     const glm::vec3 RightDirection = MainCamera->GetCameraRightDirection();

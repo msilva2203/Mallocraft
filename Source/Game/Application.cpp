@@ -4,9 +4,8 @@
  */
 
 #include "Application.h"
-#include "Entities/CubeTest.h"
-#include "Sandbox/PlayerPawn.h"
 #include "Rendering/Renderer.h"
+#include "Sandbox/SandboxInstance.h"
 #include "Globals.h"
 
 #include <iostream>
@@ -36,14 +35,9 @@ void Application::Run() {
     Input::Init();
 
     // Create the game instace
-    GameInstance = new Instance();
+    GameInstance = new SandboxInstance();
     GameInstance->Setup();
     Globals::CurrentInstance = GameInstance;
-
-    GameInstance->CreateEntity<CubeTest>()->SetPosition(glm::vec3(10.0f, 0.0f, 0.0f));
-    GameInstance->CreateEntity<CubeTest>()->SetPosition(glm::vec3(10.0f, -2.0f, 0.0f));
-    GameInstance->CreateEntity<PlayerPawn>();
-    GameInstance->CreateEntity<Chunk>();
 
     f32 LastFrameTime = 0.0f;
 
