@@ -68,7 +68,10 @@ void Chunk::GenerateData(const i64 InId) {
     for (i32 X = 0; X < CHUNK_SIZE; X++) {
         for (i32 Y = 0; Y < CHUNK_HEIGHT; Y++) {
             for (i32 Z = 0; Z < CHUNK_SIZE; Z++) {
-                i32 Height = (glm::sin(glm::radians((f32)(X + ChunkGridPosition.x) * (f32)(Z + ChunkGridPosition.y)) * 2) * 4);
+                i32 Height = 
+                    (glm::sin(32.0f + (f32)(X + ChunkWorldPosition.x) * 0.1) * 4) * 
+                    (glm::sin(0.0f + (f32)(Z + ChunkWorldPosition.z) * 0.15) * 2) *
+                    (glm::cos(10.0f + (f32)(Z + ChunkWorldPosition.z) * 0.05) * 3);
                 Height += (CHUNK_HEIGHT / 2);
                 if (Y < Height)
                     Blocks[X][Y][Z] = 1;
@@ -154,6 +157,15 @@ void Chunk::GenerateMesh() {
         glm::ivec2(0.0f, 0.0f),
     };
 
+    static std::array<f32, 6> LightLevels = {
+        0.65f,
+        0.65f,
+        1.00f,
+        1.00f,
+        0.90f,
+        0.90f
+    };
+
     auto GridPosition = World::MakeChunkPosition(Id);
     
     std::vector<f32> MeshData;
@@ -196,6 +208,7 @@ void Chunk::GenerateMesh() {
                             MeshData.push_back(Vertex.z + Z);
                             MeshData.push_back(Uv.x);
                             MeshData.push_back(Uv.y);
+                            MeshData.push_back(LightLevels[FaceIndex]);
                             VertexIndex++;
                         }
                     }
@@ -209,10 +222,11 @@ void Chunk::GenerateMesh() {
     VAO->Bind();
     VBO->Bind();
 
-    Size = MeshData.size() / 5;
-    VBO->BufferData(MeshData.data(), sizeof(f32) * MeshData.size(), 5 * sizeof(f32));
+    Size = MeshData.size() / 6;
+    VBO->BufferData(MeshData.data(), sizeof(f32) * MeshData.size(), 6 * sizeof(f32));
     VBO->AddAttribute(3);
     VBO->AddAttribute(2);
+    VBO->AddAttribute(1);
 
     VAO->Unbind();
     VBO->Unbind();

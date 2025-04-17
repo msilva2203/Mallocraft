@@ -34,9 +34,12 @@ void PlayerPawn::Update(f32 DeltaTime) {
     Super::Update(DeltaTime);
     
     const f32 Speed = 20.0f;
-    const glm::vec3 UpDirection = MainCamera->GetCameraUpDirection();
-    const glm::vec3 ForwardDirection = MainCamera->GetCameraForwardDirection();
-    const glm::vec3 RightDirection = MainCamera->GetCameraRightDirection();
+    glm::vec3 UpDirection = MainCamera->GetCameraUpDirection();
+    glm::vec3 ForwardDirection = MainCamera->GetCameraForwardDirection();
+    glm::vec3 RightDirection = MainCamera->GetCameraRightDirection();
+
+    ForwardDirection.y = 0.0f;
+    ForwardDirection = glm::normalize(ForwardDirection);
 
     glm::vec3 InputVector = glm::vec3(0.0f);
 
