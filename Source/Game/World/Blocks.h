@@ -21,7 +21,8 @@ namespace Blocks {
     enum class Type {
         Air = 0,
         Dirt,
-        Stone
+        Stone,
+        Water
     };
 
     i32 GetTextureIndex(Type Block, Direction InDirection);

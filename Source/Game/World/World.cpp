@@ -8,7 +8,7 @@
 #include "Framework/Pawn.h"
 #include "Chunk.h"
 
-#define CHUNK_NUM ((32 + 1) * 2)
+#define CHUNK_NUM (32 + 1)
 
 static i32 NumChunksRemeshed = 0;
 
@@ -31,7 +31,7 @@ World::~World() {
 void World::Setup() {
     Super::Setup();
 
-    return;
+    //return;
     for (i32 i = 0; i < CHUNK_NUM; i++) {
         for (i32 j = 0; j < CHUNK_NUM; j++) {
             glm::ivec2 Position = glm::ivec2(i, j);
@@ -149,7 +149,7 @@ Blocks::Type World::GenerateBlock(const glm::ivec3& Position) {
         return Blocks::Type::Dirt;
     } else if (Position.y < WaterLevel) {
         // Water
-        return Blocks::Type::Air;
+        return Blocks::Type::Water;
     }
 
     return Blocks::Type::Air;

@@ -23,6 +23,8 @@ namespace Blocks {
             }
             case Type::Stone:
             return 3;
+            case Type::Water:
+            return 4;
         }
         return 4 * 4 - 1;
     }
