@@ -7,6 +7,7 @@
 
 #include "Utility.h"
 #include "Framework/Entity.h"
+#include "Blocks.h"
 #include <unordered_map>
 #include <queue>
 #include <set>
@@ -29,6 +30,7 @@ public:
     Chunk* CreateChunk(const i64 ChunkId);
     Chunk* GetChunk(i64 ChunkId);
 
+    Blocks::Type GenerateBlock(const glm::ivec3& Position);
     void GenerateChunkMesh(Chunk* InChunk);
 
     static i64 MakeChunkId(const glm::ivec2& Position);

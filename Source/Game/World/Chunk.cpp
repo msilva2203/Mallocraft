@@ -22,7 +22,7 @@ Chunk::Chunk(World* InWorld) {
     ChunkShader = Shader::Manager::GetShader("Content/Shaders/Chunk.glsl");
 
     ChunkTexture = new Texture();
-    ChunkTexture->Load("Content/Textures/Placeholder.jpg");
+    ChunkTexture->Load("Content/Textures/Atlas.jpg");
 }
 
 Chunk::~Chunk() {
@@ -35,15 +35,7 @@ void Chunk::Setup() {
 }
 
 void Chunk::Update(f32 DeltaTime) {
-    //Time += DeltaTime;
-    //if (Time >= 0.1f) {
-    //    std::cout << "Generating new chunk!" << std::endl;
-    //    glm::ivec3 IndexCoord = glm::ivec3( Index % CHUNK_SIZE, (Index / CHUNK_SIZE) % CHUNK_HEIGHT, Index / (CHUNK_SIZE * CHUNK_HEIGHT) );
-    //    Blocks[IndexCoord.x][IndexCoord.y][IndexCoord.z] = 0;
-    //    Index++;
-    //    GenerateMesh();
-    //    Time = 0.0f;
-    //}
+    
 }
 
 void Chunk::Draw() {
@@ -68,14 +60,12 @@ void Chunk::GenerateData(const i64 InId) {
     for (i32 X = 0; X < CHUNK_SIZE; X++) {
         for (i32 Y = 0; Y < CHUNK_HEIGHT; Y++) {
             for (i32 Z = 0; Z < CHUNK_SIZE; Z++) {
-                i32 Height = 
-                    (glm::sin(32.0f + (f32)(X + ChunkWorldPosition.x) * 0.1) * 4) * 
-                    (glm::sin(0.0f + (f32)(Z + ChunkWorldPosition.z) * 0.15) * 2) *
-                    (glm::cos(10.0f + (f32)(Z + ChunkWorldPosition.z) * 0.05) * 3);
-                Height += (CHUNK_HEIGHT / 2);
-                if (Y < Height)
-                    Blocks[X][Y][Z] = 1;
-                //Blocks[X][Y][Z] = 1;
+                const glm::ivec3 BlockPosition = glm::ivec3(
+                    ChunkWorldPosition.x + X,
+                    ChunkWorldPosition.y + Y,
+                    ChunkWorldPosition.z + Z
+                );
+                Blocks[X][Y][Z] = OwningWorld->GenerateBlock(BlockPosition);
             }
         }
     }
@@ -174,13 +164,18 @@ void Chunk::GenerateMesh() {
         for (i32 Y = 0; Y < CHUNK_HEIGHT; Y++) {
             for (i32 Z = 0; Z < CHUNK_SIZE; Z++) {
 
-                if (Blocks[X][Y][Z] == 0) continue;
+                // Get iteration block and ignore it if air
+                Blocks::Type ItBlock = Blocks[X][Y][Z];
+                if (ItBlock == Blocks::Type::Air) continue;
                 
+                // Generate each mesh of the block
                 i32 FaceIndex = 0;
                 for (auto& Dir : Directions) {
                     auto& FaceData = Faces[FaceIndex];
 
-                    u64 NeighborBlock = 0;
+                    Direction ItDirection = (Direction)FaceIndex;
+
+                    Blocks::Type NeighborBlock = Blocks::Type::Air;
                     glm::ivec3 Neighbor( X + Dir.x, Y + Dir.y, Z + Dir.z );
 
                     if (!IsInChunk(Neighbor)) {
@@ -199,7 +194,7 @@ void Chunk::GenerateMesh() {
                     }
 
                     // Add the face to the mesh
-                    if (NeighborBlock == 0) {
+                    if (NeighborBlock == Blocks::Type::Air) {
                         i32 VertexIndex = 0;
                         for (auto& Vertex : FaceData) {
                             auto Uv = Uvs[VertexIndex];
@@ -208,6 +203,7 @@ void Chunk::GenerateMesh() {
                             MeshData.push_back(Vertex.z + Z);
                             MeshData.push_back(Uv.x);
                             MeshData.push_back(Uv.y);
+                            MeshData.push_back(Blocks::GetTextureIndex(ItBlock, ItDirection));
                             MeshData.push_back(LightLevels[FaceIndex]);
                             VertexIndex++;
                         }
@@ -222,10 +218,11 @@ void Chunk::GenerateMesh() {
     VAO->Bind();
     VBO->Bind();
 
-    Size = MeshData.size() / 6;
-    VBO->BufferData(MeshData.data(), sizeof(f32) * MeshData.size(), 6 * sizeof(f32));
+    Size = MeshData.size() / 7;
+    VBO->BufferData(MeshData.data(), sizeof(f32) * MeshData.size(), 7 * sizeof(f32));
     VBO->AddAttribute(3);
     VBO->AddAttribute(2);
+    VBO->AddAttribute(1);
     VBO->AddAttribute(1);
 
     VAO->Unbind();
@@ -234,14 +231,13 @@ void Chunk::GenerateMesh() {
 
 bool Chunk::IsInChunk(const glm::ivec3& RelativePos) {
     if (RelativePos.x < 0 || RelativePos.x >= CHUNK_SIZE)   return false;
-    //if (RelativePos.y < 0 || RelativePos.y >= CHUNK_HEIGHT)   return false;
     if (RelativePos.z < 0 || RelativePos.z >= CHUNK_SIZE) return false;
     return true;
 }
 
-u64 Chunk::GetBlockAt(const glm::ivec3& RelativePos) {
+Blocks::Type Chunk::GetBlockAt(const glm::ivec3& RelativePos) {
     if (RelativePos.y < 0 || RelativePos.y >= CHUNK_HEIGHT) {
-        return 0;
+        return Blocks::Type::Air;
     }
     return Blocks[RelativePos.x][RelativePos.y][RelativePos.z];
 }

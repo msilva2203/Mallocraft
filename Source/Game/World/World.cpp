@@ -8,7 +8,7 @@
 #include "Framework/Pawn.h"
 #include "Chunk.h"
 
-#define CHUNK_NUM (3 * 2 + 1)
+#define CHUNK_NUM (9 * 2 + 1)
 
 static i32 NumChunksRemeshed = 0;
 
@@ -48,18 +48,28 @@ void World::Update(f32 DeltaTime) {
     Pawn* CurrentPawn = GetInstance()->GetPlayerController()->GetPawn();
     if (!CurrentPawn) return;
 
+    //goto gen;
+
     // Check if pawn changed chunk and spawn chunks if necessary
     glm::ivec2 PawnGridPosition = glm::ivec2(0);
     PawnGridPosition.x = (i32)std::floor(CurrentPawn->GetPosition().x / CHUNK_SIZE);
     PawnGridPosition.y = (i32)std::floor(CurrentPawn->GetPosition().z / CHUNK_SIZE);
     i64 PawnChunkId = MakeChunkId(PawnGridPosition);
     if (PawnChunkId != LastPawnChunkId) {
-        SpawnChunk(PawnChunkId);
+        i32 ViewDistance = 9;
+        for (i32 i = PawnGridPosition.x - ViewDistance; i < PawnGridPosition.x + ViewDistance; i++) {
+            for (i32 j = PawnGridPosition.y - ViewDistance; j < PawnGridPosition.y + ViewDistance; j++) {
+                i64 Id = MakeChunkId(glm::ivec2(i, j));
+                SpawnChunk(Id);
+            }
+        }
+        //SpawnChunk(PawnChunkId);
     }
     LastPawnChunkId = PawnChunkId;
 
+    gen:
     // Create chunks in queue
-    i32 FrameGenNum = 2;
+    i32 FrameGenNum = 1;
     for (i32 i = 0; i < FrameGenNum; i++) {
         if (!ChunkQueue.empty()) {
             i64 ChunkId = ChunkQueue.front();
@@ -113,6 +123,38 @@ Chunk* World::GetChunk(const i64 ChunkId) {
         return It->second;
     }
     return nullptr;
+}
+
+Blocks::Type World::GenerateBlock(const glm::ivec3& Position) {
+    const i32 SurfaceLevel = 120;
+    const i32 WaterLevel = 100;
+
+    f32 Frequency = 0.02f;
+    f32 Amplitude = 20.0f;
+    f32 TerrainLevel = SurfaceLevel 
+        + glm::sin(Position.x * Frequency) * Amplitude 
+        + glm::sin(Position.x * Frequency * 4.0f) * Amplitude * 0.25f
+        + glm::sin(Position.x * Frequency * 8.0f) * Amplitude * (1.0f/8.0f)
+        + glm::sin(Position.x * Frequency * 16.0f) * Amplitude * (1.0f/16.0f)
+        + glm::sin(Position.x * Frequency * 32.0f) * Amplitude * (1.0f/32.0f)
+        + glm::sin(Position.z * Frequency) * Amplitude
+        + glm::sin(Position.z * Frequency * 4.0f) * Amplitude * 0.25f
+        + glm::sin(Position.z * Frequency * 8.0f) * Amplitude * (1.0f/8.0f)
+        + glm::sin(Position.z * Frequency * 16.0f) * Amplitude * (1.0f/16.0f)
+        + glm::sin(Position.z * Frequency * 32.0f) * Amplitude * (1.0f/32.0f);
+
+    if (Position.y < TerrainLevel - 1) {
+        // Stone
+        return Blocks::Type::Stone;
+    } else if (Position.y <= TerrainLevel) {
+        // Dirt
+        return Blocks::Type::Dirt;
+    } else if (Position.y < WaterLevel) {
+        // Water
+        return Blocks::Type::Air;
+    }
+
+    return Blocks::Type::Air;
 }
 
 void World::GenerateChunkMesh(Chunk* InChunk) {

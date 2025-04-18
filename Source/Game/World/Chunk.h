@@ -12,6 +12,7 @@
 #include "Rendering/Renderer.h"
 #include "Framework/Entity.h"
 #include "World.h"
+#include "Blocks.h"
 #include <array>
 
 #define CHUNK_SIZE        (16)
@@ -36,10 +37,10 @@ public:
 private:
 
     bool IsInChunk(const glm::ivec3& RelativePos);
-    u64 GetBlockAt(const glm::ivec3& RelativePos);
+    Blocks::Type GetBlockAt(const glm::ivec3& RelativePos);
 
     World* OwningWorld;
-    u64 Blocks[CHUNK_SIZE][CHUNK_HEIGHT][CHUNK_SIZE] = { 0 };
+    Blocks::Type Blocks[CHUNK_SIZE][CHUNK_HEIGHT][CHUNK_SIZE];
     i64 Id;
 
     VertexArray* VAO;
@@ -48,7 +49,5 @@ private:
 
     Shader* ChunkShader;
     Texture* ChunkTexture;
-
-    i32 Index = 0;
-    f32 Time = 0.0f;
+    
 };
