@@ -8,7 +8,7 @@
 #include "Framework/Pawn.h"
 #include "Chunk.h"
 
-#define CHUNK_NUM (9 * 2 + 1)
+#define CHUNK_NUM ((32 + 1) * 2)
 
 static i32 NumChunksRemeshed = 0;
 
@@ -31,6 +31,7 @@ World::~World() {
 void World::Setup() {
     Super::Setup();
 
+    return;
     for (i32 i = 0; i < CHUNK_NUM; i++) {
         for (i32 j = 0; j < CHUNK_NUM; j++) {
             glm::ivec2 Position = glm::ivec2(i, j);
@@ -47,8 +48,6 @@ void World::Update(f32 DeltaTime) {
 
     Pawn* CurrentPawn = GetInstance()->GetPlayerController()->GetPawn();
     if (!CurrentPawn) return;
-
-    //goto gen;
 
     // Check if pawn changed chunk and spawn chunks if necessary
     glm::ivec2 PawnGridPosition = glm::ivec2(0);
@@ -67,7 +66,6 @@ void World::Update(f32 DeltaTime) {
     }
     LastPawnChunkId = PawnChunkId;
 
-    gen:
     // Create chunks in queue
     i32 FrameGenNum = 1;
     for (i32 i = 0; i < FrameGenNum; i++) {

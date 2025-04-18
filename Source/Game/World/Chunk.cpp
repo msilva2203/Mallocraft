@@ -19,10 +19,9 @@ Chunk::Chunk(World* InWorld) {
     VBO = new VertexBuffer();
     VBO->Bind();
 
+    // Get reference to shader and texture
     ChunkShader = Shader::Manager::GetShader("Content/Shaders/Chunk.glsl");
-
-    ChunkTexture = new Texture();
-    ChunkTexture->Load("Content/Textures/Atlas.jpg");
+    ChunkTexture = Texture::Manager::GetTexture("Content/Textures/Atlas.jpg");
 }
 
 Chunk::~Chunk() {

@@ -6,8 +6,8 @@
 #pragma once
 
 #include "Utility.h"
-
 #include <string>
+#include <unordered_map>
 
 class Texture
 {
@@ -40,5 +40,18 @@ private:
 
     u32 Id;
     EUnit Unit;
-    
+
+public:
+
+    class Manager {
+    public:
+
+        static Texture* GetTexture(const std::string& FilePath);
+
+    private:
+
+        static std::unordered_map<std::string, Texture*> Cache;
+
+    };
+
 };

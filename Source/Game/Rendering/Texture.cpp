@@ -56,3 +56,16 @@ void Texture::Bind() {
 void Texture::Unbind() {
     glBindTexture(GL_TEXTURE_2D, 0);
 }
+
+std::unordered_map<std::string, Texture*> Texture::Manager::Cache = std::unordered_map<std::string, Texture*>();
+
+Texture* Texture::Manager::GetTexture(const std::string& FilePath) {
+    auto It = Cache.find(FilePath);
+    if (It != Cache.end()) {
+        return It->second;
+    }
+    Texture* NewTexture = new Texture();
+    NewTexture->Load(FilePath);
+    Cache[FilePath] = NewTexture;
+    return NewTexture;
+}

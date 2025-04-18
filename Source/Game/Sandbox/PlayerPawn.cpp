@@ -33,7 +33,7 @@ void PlayerPawn::Setup() {
 void PlayerPawn::Update(f32 DeltaTime) {
     Super::Update(DeltaTime);
     
-    const f32 Speed = 20.0f;
+    f32 Speed = 20.0f;
     glm::vec3 UpDirection = MainCamera->GetCameraUpDirection();
     glm::vec3 ForwardDirection = MainCamera->GetCameraForwardDirection();
     glm::vec3 RightDirection = MainCamera->GetCameraRightDirection();
@@ -43,6 +43,9 @@ void PlayerPawn::Update(f32 DeltaTime) {
 
     glm::vec3 InputVector = glm::vec3(0.0f);
 
+    if (Input::IsKeyDown(Input::Key::LCTRL)) {
+        Speed *= 2.0f;
+    }
     if (Input::IsKeyDown(Input::Key::W)) {
         InputVector += ForwardDirection * Speed * DeltaTime;
     }
